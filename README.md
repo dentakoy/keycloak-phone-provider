@@ -1,4 +1,4 @@
-# Keycloak Phone Provider
+# Keycloak Phone Provider NG (this fork is compatible with the latest Keycloak 12.0.4 and provide some improvements)
 
  + Phone support like e-mail 
  + OTP by phone
