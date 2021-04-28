@@ -6,7 +6,7 @@ import org.jboss.logging.Logger;
 import org.jboss.resteasy.annotations.cache.NoCache;
 import org.keycloak.models.KeycloakSession;
 import org.keycloak.models.UserModel;
-import org.keycloak.services.managers.AppAuthManager;
+import org.keycloak.services.managers.AppAuthManager.BearerTokenAuthenticator;
 import org.keycloak.services.managers.AuthenticationManager.AuthResult;
 
 import javax.ws.rs.*;
@@ -22,7 +22,9 @@ public class VerificationCodeResource extends TokenCodeResource {
 
     VerificationCodeResource(KeycloakSession session) {
         super(session, TokenCodeType.VERIFY);
-        this.auth = new AppAuthManager().authenticateBearerToken(session, session.getContext().getRealm());
+        BearerTokenAuthenticator bta = new BearerTokenAuthenticator(session);
+        bta.setRealm(session.getContext().getRealm());
+        this.auth = bta.authenticate();
     }
 
     private TokenCodeService getTokenCodeService() {
