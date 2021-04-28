@@ -1,5 +1,8 @@
 package cc.coopersoft.keycloak.phone.authentication.forms;
 
+import cc.coopersoft.keycloak.phone.credential.PhoneOtpCredentialModel;
+import cc.coopersoft.keycloak.phone.credential.PhoneOtpCredentialProvider;
+import cc.coopersoft.keycloak.phone.credential.PhoneOtpCredentialProviderFactory;
 import cc.coopersoft.keycloak.phone.utils.UserUtils;
 import org.jboss.logging.Logger;
 import org.keycloak.Config;
@@ -9,6 +12,7 @@ import org.keycloak.authentication.FormContext;
 import org.keycloak.authentication.ValidationContext;
 import org.keycloak.authentication.forms.RegistrationPage;
 import org.keycloak.authentication.forms.RegistrationUserCreation;
+import org.keycloak.credential.CredentialProvider;
 import org.keycloak.events.Details;
 import org.keycloak.events.Errors;
 import org.keycloak.events.EventType;
@@ -157,7 +161,7 @@ public class RegistrationPhoneAsUserNameCreation implements FormActionFactory, F
         user.setEnabled(true);
 
         context.getAuthenticationSession().setClientNote(OIDCLoginProtocol.LOGIN_HINT_PARAM, username);
-        AttributeFormDataProcessor.process(formData, context.getRealm(), user);
+        AttributeFormDataProcessor.process(formData);
         context.setUser(user);
         context.getEvent().user(user);
         context.getEvent().success();
@@ -169,6 +173,10 @@ public class RegistrationPhoneAsUserNameCreation implements FormActionFactory, F
         if (authType != null) {
             context.getEvent().detail(Details.AUTH_TYPE, authType);
         }
+
+        PhoneOtpCredentialProvider socp = (PhoneOtpCredentialProvider) context.getSession()
+            .getProvider(CredentialProvider.class, PhoneOtpCredentialProviderFactory.PROVIDER_ID);
+        socp.createCredential(context.getRealm(), context.getUser(), PhoneOtpCredentialModel.create(username));
 
         logger.info(String.format("user: %s is created, user name is %s ",user.getId(), user.getUsername()));
     }
