@@ -154,7 +154,7 @@
                 function req(phoneNumber) {
                     const params = {params: {phoneNumber}}
                     axios.get(window.location.origin + '/auth/realms/${realm.name}/sms/registration-code', params)
-                        .then(res => app.disableSend(res.data.expiresIn))
+                        .then(res => app.disableSend(res.data.expires_in))
                         .catch(e => app.errorMessage = e.response.data.error);
                 }
 
