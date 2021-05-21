@@ -3,8 +3,12 @@
     <#if section = "header">
         ${msg("registerTitle")}
     <#elseif section = "form">
+
         <script src="https://cdn.jsdelivr.net/npm/vue/dist/vue.js"></script>
         <script src="https://cdn.jsdelivr.net/npm/axios/dist/axios.min.js"></script>
+
+        <script src="https://unpkg.com/vue-tel-input"></script>
+        <link rel="stylesheet" href="https://unpkg.com/vue-tel-input/dist/vue-tel-input.css"> 
 
         <div id="vue-app">
         <form id="kc-register-form" class="${properties.kcFormClass!}" action="${url.registrationAction}" method="post">
@@ -42,15 +46,16 @@
                         <label for="phoneNumber" class="${properties.kcLabelClass!}">${msg("phoneNumber")}</label>
                     </div>
                     <div class="${properties.kcInputWrapperClass!}">
-                        <input tabindex="1" id="phoneNumber" class="${properties.kcInputClass!}"
-                               name="phoneNumber" id="phoneNumber" type="tel"
-                               autofocus
-                               value="${(register.formData.phoneNumber!'')}"
-                               autocomplete="mobile tel"/>
+                        <vue-tel-input  tabindex="1"
+                                        class="${properties.kcInputClass!}"
+                                        ref="phoneNumber"
+                                        v-model="phoneNumber"
+                                        v-bind="bindProps"
+                                        v-on:input="setCurrentPhoneNumber" />
                     </div>
                 </div>
 
-
+                <input id="phoneNumber" name="phoneNumber" type="hidden" />
 
                 <div class=" ${properties.kcFormGroupClass!} row">
 
@@ -165,6 +170,15 @@
                         phoneNumber: '',
                         sendButtonText: '${msg("sendVerificationCode")}',
                         initSendButtonText: '${msg("sendVerificationCode")}',
+                        bindProps: {
+                            mode:                   'international',
+                            validCharactersOnly:    true,
+                            inputOptions: {
+                                autofocus:      true,
+                                required:       true,
+                                placeholder:    '${msg("phoneNumberPlaceholder")}'
+                            }
+                        },
                         disableSend: function (seconds) {
                             if (seconds <= 0) {
                                 app.sendButtonText = app.initSendButtonText;
@@ -179,18 +193,25 @@
                         },
                         sendVerificationCode: function () {
                             this.errorMessage = '';
-                            const phoneNumber = document.getElementById('phoneNumber').value.trim();
+                            const phoneNumber = document.getElementById('phoneNumber').value;
                             if (!phoneNumber) {
+                                console.log('test');
                                 this.errorMessage = '${msg("requiredPhoneNumber")}';
-                                document.getElementById('phoneNumber').focus();
+                                this.$refs.phoneNumber.focus();
                                 return;
                             }
                             if (this.sendButtonText !== this.initSendButtonText) return;
                             req(phoneNumber);
                         }
+                    },
+                    methods: {
+                        setCurrentPhoneNumber: function (number, phoneObj) {
+                            if (phoneObj.number) {
+                                document.getElementById('phoneNumber').value = phoneObj.number;
+                            }
+                        }
                     }
                 });
-
             </script>
         </#if>
     </#if>
